@@ -1,5 +1,6 @@
 package weatherApp;
 import java.awt.Component;
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
 
@@ -79,49 +79,59 @@ public class Main {
 		
 	}
 	
-	public static void main(String[] args) 
-		throws InterruptedException {		
+	public static Component DisplayWeather()
+			throws InterruptedException {		
+
+    
+		JSONObject jo = new JSONObject(GetWeather());
+		JSONObject weather = new JSONObject(((JSONArray) jo.get("weather")).get(0).toString());
+		JSONObject weatherMain = new JSONObject((jo.get("main")).toString());
+		JSONObject weatherWind = new JSONObject((jo.get("wind")).toString());
+
 		
-	        JFrame frame = new JFrame("weatherApp");
-		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		    frame.setSize(300,300);
-		    
-		    while (true) {
-				JSONObject jo = new JSONObject(GetWeather());
-				JSONObject weather = new JSONObject(((JSONArray) jo.get("weather")).get(0).toString());
-				JSONObject weatherMain = new JSONObject((jo.get("main")).toString());
-				JSONObject weatherWind = new JSONObject((jo.get("wind")).toString());
+		String locationName = (String) jo.get("name");
 		
-				
-				String locationName = (String) jo.get("name");
-				
-				String currentTemp = KtoF((double) weatherMain.get("temp"));
-				String humidity = weatherMain.get("humidity").toString();
-				String pressure = weatherMain.get("pressure").toString();
-				
-				String currentConditions = (String) weather.get("description");
-				
-				String windSpeed = (String) weatherWind.get("speed").toString();
-				String windDirection = (String) weatherWind.get("deg").toString();
+		String currentTemp = KtoF((double) weatherMain.get("temp"));
+		String humidity = weatherMain.get("humidity").toString();
+		String pressure = weatherMain.get("pressure").toString();
 		
+		String currentConditions = (String) weather.get("description");
 		
-			    Component textArea = new JTextArea("Location:" + locationName + "\n" + 
-			    		"Current Conditions:" + currentConditions + "\n" +
-			    		"Current Temp:" + currentTemp + "\n" +
-			    		"Humidity:" + humidity + "\n" +
-			    		"Pressure:" + pressure + "\n" +
-			    		"Wind Speed:" + windSpeed + "\n" +
-			    		"Wind Direction:" + windDirection
-			    		);
-		    	    
-		    ((JTextComponent) textArea).setEditable(false);
-		    frame.getContentPane().add(textArea);
-		    frame.setVisible(true);
-		    
-		    TimeUnit.MINUTES.sleep(1);
-	 
-		    }
+		String windSpeed = (String) weatherWind.get("speed").toString();
+		String windDirection = (String) weatherWind.get("deg").toString();
+
+
+	    Component textArea = new JTextArea("Location:" + locationName + "\n" + 
+	    		"Current Conditions:" + currentConditions + "\n" +
+	    		"Current Temp:" + currentTemp + "\n" +
+	    		"Humidity:" + humidity + "\n" +
+	    		"Pressure:" + pressure + "\n" +
+	    		"Wind Speed:" + windSpeed + "\n" +
+	    		"Wind Direction:" + windDirection
+	    		);
+    	    
+	    ((JTextComponent) textArea).setEditable(false);
+	    ((JTextComponent) textArea).setFont(new Font("Monaco", Font.PLAIN, 20));
+		return textArea;
+
+	}
+	
+	public static void main(String[] args) {
 		
+        JFrame frame = new JFrame("weatherApp");
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    frame.setSize(300,300);
+	    
+		while (true) {
+			try {
+			    frame.getContentPane().add(DisplayWeather());
+			    frame.setVisible(true);
+			    TimeUnit.MINUTES.sleep(1);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 }
